@@ -170,3 +170,81 @@ npm init -y
 npm install express body-parser
 ```
 Thêm server.js → chạy là xong
+
+## Cấu hình để trình duyệt từ reload khi chỉnh sửa
+## 1. Trạng thái hiện tại (mặc định)
+Đang chạy:
+```
+node server.js
+```
+Khi chỉnh sửa server.js:
+- ❌ Server không restart
+
+- ❌ Browser không reload
+
+👉 Bạn phải:
+```
+Ctrl + C
+chạy lại node server.js
+refresh browser thủ công
+```
+✅ Cách 1: dùng nodemon
+
+Cài nodemon
+```
+npm install --save-dev nodemon
+```
+Sửa package.json
+```
+{
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  }
+}
+```
+Chạy chế độ dev
+```
+npm run dev
+```
+👉 Kết quả:
+- Sửa server.js → server tự restart
+- Refresh browser là thấy code mới
+- Browser vẫn phải refresh, nhưng server tự restart
+
+🔥 Cách 2: Tự reload browser (Live Reload)
+
+Nếu bạn muốn browser tự reload luôn (giống frontend dev):
+
+Dùng livereload + connect-livereload
+```
+npm install --save-dev livereload connect-livereload
+```
+Sửa server.js
+```
+const livereload = require('livereload');
+const connectLiveReload = require('connect-livereload');
+
+// LiveReload server
+const liveReloadServer = livereload.createServer();
+liveReloadServer.watch(__dirname);
+
+// Inject script
+app.use(connectLiveReload());
+```
+Và trigger reload:
+```
+liveReloadServer.server.once('connection', () => {
+  setTimeout(() => {
+    liveReloadServer.refresh('/');
+  }, 100);
+});
+```
+👉 Kết quả:
+- Sửa file → browser tự reload
+- Hơi overkill cho mock-server
+
+## Tóm tắt ngắn gọn
+- Dùng nodemon → server tự restart
+- Browser vẫn F5
+- Muốn auto reload browser → thêm livereload (không cần thiết)
