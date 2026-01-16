@@ -5,6 +5,9 @@ const path = require("path");
 const app = express();
 const PORT = 3000;
 
+const multer = require("multer");
+const upload = multer();
+
 // Parse POST body
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -21,14 +24,24 @@ app.get("/", (req, res) => {
 });
 
 /**
- * Mock API
+ * Mock GET API
  */
+const users = require("./api/users");
 app.get("/api/users", (rep, res) => {
-  res.json([
-    { id: 1, name: "Java Android" },
-    { id: 2, name: "Node JS" },
-    { id: 3, name: "Swift UIKit" },
-  ]);
+  res.json(users);
+});
+
+// API GET products
+const products = require("./api/products");
+app.get("/api/products", products);
+
+// Mock API POST
+const apiLogin = require("./api/login");
+app.post("/api/login", upload.none(), apiLogin);
+
+// Mock API Error
+app.get("/api/error", (req, res) => {
+  res.status(500).json({ message: "Server error (mock)" });
 });
 // Start server
 app.listen(PORT, () => {
